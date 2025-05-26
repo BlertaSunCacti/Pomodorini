@@ -77,29 +77,16 @@ function getInitialTimerState(
   };
 }
 
-function transitionState(
-  state: TimerState,
-  settings: RhythmSettings,
-  isLongBreak: boolean = false
-): TimerState {
+function transitionState(state: TimerState, settings: RhythmSettings): TimerState {
   const newState = { ...state };
 
   if (state.isWork) {
     newState.isWork = false;
-    newState.activeBreakButton = isLongBreak ? "long" : "short";
-    if (isLongBreak) {
-      newState.cycleCount = 0;
-    }
+    newState.cycleCount = (state.cycleCount + 1) % settings.cyclesUntilLongBreak;
+    newState.activeBreakButton = newState.cycleCount === 0 ? "long" : "short";
   } else {
-    if (state.activeBreakButton === (isLongBreak ? "long" : "short")) {
-      newState.isWork = true;
-      newState.activeBreakButton = null;
-    } else {
-      newState.activeBreakButton = isLongBreak ? "long" : "short";
-      if (isLongBreak) {
-        newState.cycleCount = 0;
-      }
-    }
+    newState.isWork = true;
+    newState.activeBreakButton = null;
   }
 
   return {
@@ -127,10 +114,16 @@ function createTimerStore() {
   };
 
   const store = writable<TimerState>(initialState);
-  let interval: number | null = null;
+  let interval: ReturnType<typeof setInterval> | null = null;
   let animationFrameId: number | null = null;
   let startTime: number | null = null;
   let initialTotalSeconds: number | null = null;
+
+  if (typeof window !== "undefined" && "Notification" in window) {
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }
 
   const { subscribe, update } = store;
 
@@ -225,13 +218,36 @@ function createTimerStore() {
       const elapsedSeconds = (performance.now() - startTime) / 1000;
       if (elapsedSeconds >= initialTotalSeconds) {
         const settings = getSettings(state);
-        const newState = transitionState(
-          state,
-          settings,
-          state.cycleCount % settings.cyclesUntilLongBreak === 0
-        );
+        const newState = transitionState(state, settings);
+
+        if (
+          typeof window !== "undefined" &&
+          "Notification" in window &&
+          Notification.permission === "granted"
+        ) {
+          const isLongBreak = newState.cycleCount === 0;
+          const message = state.isWork
+            ? `Time for a ${isLongBreak ? "long" : "short"} break!`
+            : "Break's over! Time to focus!";
+
+          try {
+            const notification = new Notification("Pomodorini", {
+              body: message,
+              icon: "/Pomodorini/tomato.svg",
+              silent: false,
+              requireInteraction: true,
+            });
+
+            setTimeout(() => {
+              notification.close();
+            }, 10000);
+          } catch (error) {
+            console.error("Failed to show notification:", error);
+          }
+        }
+
         pauseTimer();
-        return newState;
+        return { ...newState, isRunning: false };
       }
       return state;
     });
@@ -245,10 +261,10 @@ function createTimerStore() {
     }));
   }
 
-  function toggleMode(isLongBreak: boolean = false) {
+  function toggleMode() {
     update((state) => {
       const settings = getSettings(state);
-      const newState = transitionState(state, settings, isLongBreak);
+      const newState = transitionState(state, settings);
 
       const initialState = getInitialTimerState(newState, settings);
       Object.assign(newState, initialState);

@@ -157,6 +157,7 @@
       margin-top: 2rem;
       padding: 1rem;
       max-width: 100%;
+      border-radius: 1rem;
     }
   }
 

@@ -2,6 +2,8 @@
 
 A modern, customizable Pomodoro timer built with Svelte and TypeScript. Pomodorini helps you stay focused and productive using the Pomodoro Technique, with additional rhythm options for different work styles.
 
+🌐 [Visit Pomodorini here](https://blerta.github.io/Pomodorini/)
+
 ## Features
 
 - 🎯 Multiple rhythm presets:
