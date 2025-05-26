@@ -72,14 +72,6 @@
     transition: transform 0.3s ease;
   }
 
-  .tomato-progress:hover {
-    transform: scale(1.05);
-  }
-
-  .break-mode {
-    stroke: var(--color-break);
-  }
-
   rect {
     will-change: transform, height;
   }

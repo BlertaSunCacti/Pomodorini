@@ -1,16 +1,12 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { rhythms } from "./stores/rhythms";
+  import Button from "./Button.svelte";
 
   const { isOpen, onClose, onSave } = $props<{
     isOpen: boolean;
     onClose: () => void;
-    onSave: (
-      work: number,
-      shortBreak: number,
-      longBreak: number,
-      label: string
-    ) => void;
+    onSave: (work: number, shortBreak: number, longBreak: number, label: string) => void;
   }>();
 
   let rhythmLabel = $state("My Schedule");
@@ -53,19 +49,14 @@
     onClose();
   }
 
-  function handleInput(
-    event: Event,
-    type: "label" | "work" | "shortBreak" | "longBreak"
-  ) {
+  function handleInput(event: Event, type: "label" | "work" | "shortBreak" | "longBreak") {
     if (type === "label") {
       const input = event.target as HTMLInputElement;
       const cursorPosition = input.selectionStart;
       const oldValue = input.value;
       const newValue = oldValue
         .split(" ")
-        .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        )
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(" ");
 
       if (oldValue !== newValue) {
@@ -85,9 +76,7 @@
       longBreakMinutes,
       rhythmLabel
         .split(" ")
-        .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        )
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(" ")
     );
     handleClose();
@@ -95,103 +84,98 @@
 </script>
 
 {#if isOpen}
+<div
+  class="modal-backdrop"
+  role="button"
+  tabindex="0"
+  onclick={handleClose}
+  onkeydown={(e) => ["Escape"].includes(e.key) && handleClose()}
+  aria-label="Close modal backdrop"
+  aria-labelledby="modal-title"
+>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
-    class="modal-backdrop"
-    role="button"
-    tabindex="0"
-    onclick={handleClose}
-    onkeydown={(e) => ["Escape"].includes(e.key) && handleClose()}
-    aria-label="Close modal backdrop"
-    aria-labelledby="modal-title"
+    class="modal-content"
+    onclick={(e) => e.stopPropagation()}
+    role="dialog"
+    aria-modal="true"
+    tabindex={0}
   >
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div
-      class="modal-content"
-      onclick={(e) => e.stopPropagation()}
-      role="dialog"
-      aria-modal="true"
-      tabindex={0}
-    >
-      <h2 id="modal-title">Custom Rhythm</h2>
-      <form
-        onsubmit={handleSubmit}
-        aria-label="Custom rhythm settings"
-      >
-        <fieldset>
-          <legend class="visually-hidden">Rhythm Settings</legend>
-          <div class="input-group">
-            <label for="label">Rhythm Name</label>
-            <input
-              type="text"
-              id="label"
-              bind:value={rhythmLabel}
-              oninput={(e) => handleInput(e, "label")}
-              placeholder="e.g., Deep Work, Study Mode, etc."
-              maxlength="20"
-              required
-              aria-required="true"
-            />
-          </div>
-          <div class="input-group">
-            <label for="work">Work Duration (minutes)</label>
-            <input
-              type="number"
-              id="work"
-              bind:value={workMinutes}
-              min="1"
-              max="120"
-              required
-              aria-required="true"
-              aria-label="Work duration in minutes"
-            />
-          </div>
-          <div class="input-group">
-            <label for="shortBreak">Short Break (minutes)</label>
-            <input
-              type="number"
-              id="shortBreak"
-              bind:value={shortBreakMinutes}
-              min="1"
-              max="60"
-              required
-              aria-required="true"
-              aria-label="Short break duration in minutes"
-            />
-          </div>
-          <div class="input-group">
-            <label for="longBreak">Long Break (minutes)</label>
-            <input
-              type="number"
-              id="longBreak"
-              bind:value={longBreakMinutes}
-              min="1"
-              max="60"
-              required
-              aria-required="true"
-              aria-label="Long break duration in minutes"
-            />
-          </div>
-        </fieldset>
-        <div class="modal-actions">
-          <button
-            type="button"
-            class="cancel"
-            onclick={handleClose}
-            aria-label="Cancel and close modal"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="save"
-            aria-label="Save custom rhythm settings"
-          >
-            Save
-          </button>
+    <form onsubmit={handleSubmit} aria-label="Custom rhythm settings">
+      <fieldset>
+        <legend id="modal-title" class="modal-title">Custom Rhythm</legend>
+        <div class="input-group">
+          <label for="label">Rhythm Name</label>
+          <input
+            type="text"
+            id="label"
+            bind:value={rhythmLabel}
+            oninput={(e) => handleInput(e, "label")}
+            placeholder="e.g., Deep Work, Study Mode, etc."
+            maxlength="20"
+            required
+            aria-required="true"
+          />
         </div>
-      </form>
-    </div>
+        <div class="input-group">
+          <label for="work">Work Duration (minutes)</label>
+          <input
+            type="number"
+            id="work"
+            bind:value={workMinutes}
+            min="1"
+            max="120"
+            required
+            aria-required="true"
+            aria-label="Work duration in minutes"
+          />
+        </div>
+        <div class="input-group">
+          <label for="shortBreak">Short Break (minutes)</label>
+          <input
+            type="number"
+            id="shortBreak"
+            bind:value={shortBreakMinutes}
+            min="1"
+            max="60"
+            required
+            aria-required="true"
+            aria-label="Short break duration in minutes"
+          />
+        </div>
+        <div class="input-group">
+          <label for="longBreak">Long Break (minutes)</label>
+          <input
+            type="number"
+            id="longBreak"
+            bind:value={longBreakMinutes}
+            min="1"
+            max="60"
+            required
+            aria-required="true"
+            aria-label="Long break duration in minutes"
+          />
+        </div>
+      </fieldset>
+      <div class="modal-actions">
+        <Button
+          type="button"
+          variant="secondary"
+          onclick={handleClose}
+          aria-label="Cancel and close modal"
+          label="Cancel"
+        />
+        <Button
+          type="submit"
+          variant="primary"
+          aria-label="Save custom rhythm settings"
+          label="Save"
+        />
+      </div>
+    </form>
   </div>
+</div>
+
 {/if}
 
 <style>
@@ -216,23 +200,31 @@
     width: 90%;
     max-width: 400px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-  }
 
-  h2 {
-    color: var(--color-primary);
-    margin: 0 0 1.5rem 0;
-    font-size: 1.5rem;
-    text-align: center;
+    @media screen and (width < 480px) {
+      width: 95%;
+      padding: 1.5rem;
+    }
   }
-
-  :global(body.break-mode) h2 {
-    color: var(--color-break);
-  }
-
   fieldset {
     border: none;
     padding: 0;
     margin: 0;
+    width: 100%;
+  }
+
+  .modal-title {
+    color: var(--color-primary);
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    text-align: center;
+    font-weight: bold;
+    width: 100%;
+    padding: 0;
+  }
+
+  :global(body.break-mode) .modal-title {
+    color: var(--color-break);
   }
 
   .input-group {
@@ -257,43 +249,43 @@
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 2rem;
+    @media screen and (width < 480px) {
+      flex-direction: column;
+      gap: 0.8rem;
+    }
   }
 
-  .cancel {
-    background: transparent;
-    border: 1px solid var(--color-primary);
+  input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid var(--color-primary);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: "Orbitron", sans-serif;
+    background: var(--color-secondary);
     color: var(--color-primary);
+    box-sizing: border-box;
+    appearance: textfield;
+    -moz-appearance: textfield;
   }
 
-  :global(body.break-mode) .cancel {
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  :global(body.break-mode) input {
     border-color: var(--color-break);
     color: var(--color-break);
   }
 
-  .cancel:hover {
-    background: var(--color-primary);
-    color: var(--color-secondary);
-  }
-
-  :global(body.break-mode) .cancel:hover {
-    background: var(--color-break);
-    color: var(--color-secondary);
-  }
-
-  .save {
-    background: var(--color-primary);
-    color: var(--color-secondary);
-  }
-
-  :global(body.break-mode) .save {
-    background: var(--color-break);
-  }
-
-  .save:hover {
-    background: var(--color-primary-dark);
-  }
-
-  :global(body.break-mode) .save:hover {
-    background: var(--color-break-dark);
+  :global(body.break-mode) input:focus {
+    border-color: var(--color-break);
   }
 </style>

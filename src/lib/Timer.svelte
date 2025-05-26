@@ -39,32 +39,18 @@
     <div
       class="timer-display"
       role="timer"
-      aria-label={$timer.isWork
-        ? "Focus time remaining"
-        : "Break time remaining"}
+      aria-label={$timer.isWork ? "Focus time remaining" : "Break time remaining"}
     >
       {$formattedTime}
     </div>
   </div>
   <div class="controls" role="toolbar" aria-label="Timer controls">
     {#if $timer.isRunning}
-      <Button
-        aria-label="Pause timer"
-        onclick={timer.pauseTimer}
-        label="Pause"
-      />
+      <Button aria-label="Pause timer" onclick={timer.pauseTimer} label="Pause" />
     {:else}
-      <Button
-        aria-label="Start timer"
-        onclick={timer.startTimer}
-        label="Start"
-      />
+      <Button aria-label="Start timer" onclick={timer.startTimer} label="Start" />
     {/if}
-    <Button 
-      aria-label="Reset timer" 
-      onclick={timer.resetTimer}
-      label="Reset"
-    />
+    <Button aria-label="Reset timer" onclick={timer.resetTimer} label="Reset" />
   </div>
 </section>
 
@@ -74,15 +60,23 @@
 
 <style>
   .timer-container {
-    min-width: 350px;
-    margin: 60px auto;
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto 60px;
     padding: 2rem;
     background: var(--color-secondary);
     border-radius: 1.5rem;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
     text-align: center;
-  }
 
+    @media screen and (width < 480px) {
+      margin: 2rem auto;
+      padding: 1rem;
+      border-radius: 1rem;
+      min-width: unset;
+      width: 100%;
+    }
+  }
   .timer-wrapper {
     display: flex;
     flex-direction: column;
@@ -97,6 +91,10 @@
     margin-bottom: 1.5rem;
     letter-spacing: 2px;
     color: var(--color-primary);
+
+    @media screen and (width < 480px) {
+      font-size: 4rem;
+    }
   }
 
   :global(body.break-mode) .timer-display {
