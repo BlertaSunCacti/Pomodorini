@@ -93,7 +93,7 @@
   </div>
   <footer>
     Made with <img
-      src="/tomato.svg"
+      src="/Pomodorini/tomato.svg"
       alt="❤️"
       width="16"
       height="16"
