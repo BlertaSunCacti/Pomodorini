@@ -143,9 +143,9 @@ function createTimerStore() {
     update((state) => {
       if (!state.isRunning) {
         const settings = getSettings(state);
-        const totalSeconds = getTotalSeconds(state, settings);
-        startTime = performance.now();
-        initialTotalSeconds = totalSeconds;
+        const totalSeconds = state.minutes * 60 + state.seconds;
+        startTime = performance.now() - (getTotalSeconds(state, settings) - totalSeconds) * 1000;
+        initialTotalSeconds = getTotalSeconds(state, settings);
         interval = setInterval(tick, 1000);
         if (animationFrameId === null) {
           updateProgress();
@@ -261,10 +261,19 @@ function createTimerStore() {
     }));
   }
 
-  function toggleMode() {
+  function toggleMode(isLongBreak?: boolean) {
     update((state) => {
       const settings = getSettings(state);
-      const newState = transitionState(state, settings);
+      const newState = { ...state };
+
+      if (state.isWork) {
+        newState.isWork = false;
+        newState.cycleCount = (state.cycleCount + 1) % settings.cyclesUntilLongBreak;
+        newState.activeBreakButton = isLongBreak ? "long" : "short";
+      } else {
+        newState.isWork = true;
+        newState.activeBreakButton = null;
+      }
 
       const initialState = getInitialTimerState(newState, settings);
       Object.assign(newState, initialState);
